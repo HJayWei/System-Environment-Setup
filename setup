@@ -1,0 +1,150 @@
+#!/bin/bash
+
+#### function defined ####
+
+function basic_package_install(){
+  echo -e '\e[1;32mBasic package install\e[0m'
+
+  ${IS_SUDO} apt update  -y
+  ${IS_SUDO} apt install -y vim git curl wget
+  ${IS_SUDO} apt install -y silversearcher-ag
+  ${IS_SUDO} apt install -y exuberant-ctags
+  ${IS_SUDO} apt install -y fzf
+  ${IS_SUDO} apt install -y ripgrep
+}
+
+function append_custom_bashrc(){
+  echo -e '\e[1;32mAppend custom bashrc\e[0m'
+
+  bash_color="
+  \n\n
+  \n#### custom defined ####
+  \nfunction parse_git_branch {
+  \n  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+  \n}
+  \n
+  "
+  ps1_conf="PS1=\"[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;32m\]\h\[\e[0m\] \[\e[1;33m\]\W\[\e[0m\]]\[\e[1;31m\]\\\$(parse_git_branch)\\\\$ \[\e[0m\]\""
+  custom_bashrc="
+  \n
+  \n#### alias ####
+  \nalias ls='ls -FvG --color=auto'
+  \nalias ll='ls -lh --time-style=+\"%Y-%m-%d %H:%M\" --color=auto'
+  \nalias clr='clear'
+  \nalias grep='grep --color=auto'
+  \n\n
+  \n#### system params ####
+  \nGREP_COLOR='1;31'
+  \nGREP_OPTIONS='--color=always'
+  \nCLICOLOR=\"xterm-color\"
+  \nLSCOLORS=\"gxfxcxdxcxegedabagacad\"
+  \nHISTCONTROL=erasedups
+  \nPATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:~/.bin
+  \n\n
+  \nexport PS1 CLICOLOR LSCOLORS GREP_COLOR GREP_OPTIONS HISTCONTROL PATH
+  \nunset MAILCHECK"
+
+  echo -e ${bash_color}    >> ${HOME}/.bashrc
+  echo    ${ps1_conf}      >> ${HOME}/.bashrc
+  echo -e ${custom_bashrc} >> ${HOME}/.bashrc
+
+  ${IS_SUDO} locale-gen "zh_TW.UTF-8"
+  ${IS_SUDO} dpkg-reconfigure locales
+}
+
+function install_nodejs(){
+  echo -e '\e[1;32mInstall nodejs\e[0m'
+
+  curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | ${IS_SUDO} bash -
+  source ${HOME}/.bashrc
+  nvm install v18
+}
+
+function vim_setup(){
+  echo -e '\e[1;32mVIM setup\e[0m'
+
+  mkdir ${PWD}/test_vim
+  tar zxvf ${PWD}/vim_fzf.tar.gz -C ${PWD}/test_vim
+  cp -rf ${PWD}/test_vim/root/.vim ${PWD}/test_vim/root/.vimrc ${HOME}/
+  rm -rf ${PWD}/test_vim
+}
+
+function configurate_git(){
+  echo -e '\e[1;32mConfiguarte git\e[0m'
+
+  cp ${PWD}/gitconfig $HOME/.gitconfig
+
+  echo -ne "\e[1;33mUser Name: \e[0m\0"
+  read username
+
+  echo -ne "\e[1;33mUser Mail: \e[0m"
+  read usermail
+
+  git config --global user.name "${username}"
+  git config --global user.email "${usermail}"
+}
+
+function check_sudo(){
+  while [[ true ]]; do
+    echo -e "\e[1;32mWould you want use sudo ? (y/n)\e[0m"
+    read is_sudo
+
+    if [[ ${is_sudo} =~ ^[Y|y|N|n]$ ]]; then
+      break
+    fi
+  done
+
+  if [[ ${is_sudo} =~ ^[Y|y]$ ]]; then
+    export IS_SUDO=sudo
+  fi
+}
+
+
+
+
+#### main process ####
+while [[ true ]]; do
+  echo "#############################"
+  echo "# Please choose one option. #"
+  echo "#############################"
+  echo "# (a) All of services       #"
+  echo "# (b) Basic package install #"
+  echo "# (c) Custom bashrc         #"
+  echo "# (n) Install nodejs v18    #"
+  echo "# (g) Git environment setup #"
+  echo "# (v) Vim environment setup #"
+  echo "# (q) Quit                  #"
+  echo "#############################"
+
+  read option
+
+  if [[ ${option} =~ ^[q|Q]$ ]]; then
+    source ${HOME}/.bashrc
+    break
+  fi
+
+
+  if [[ ${option} =~ ^[a|A|b|B|c|C|n|N|g|G|v|V]$ ]]; then
+    check_sudo
+  fi
+
+  if [[ ${option} =~ ^[a|A|c|C]$ ]]; then
+    append_custom_bashrc
+  fi
+
+  if [[ ${option} =~ ^[a|A|b|B]$ ]]; then
+    basic_package_install
+  fi
+
+  if [[ ${option} =~ ^[a|A|g|G]$ ]]; then
+    configurate_git
+  fi
+
+  if [[ ${option} =~ ^[a|A|n|N]$ ]]; then
+    install_nodejs
+  fi
+
+  if [[ ${option} =~ ^[a|A|v|V]$ ]]; then
+    vim_setup
+  fi
+done
