@@ -16,37 +16,43 @@ function basic_package_install(){
 function append_custom_bashrc(){
   echo -e '\e[1;32mAppend custom bashrc\e[0m'
 
-  bash_color="
-  \n\n
-  \n#### custom defined ####
-  \nfunction parse_git_branch {
-  \n  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
-  \n}
-  \n
-  "
-  ps1_conf="PS1=\"[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;32m\]\h\[\e[0m\] \[\e[1;33m\]\W\[\e[0m\]]\[\e[1;31m\]\\\$(parse_git_branch)\\\\$ \[\e[0m\]\""
-  custom_bashrc="
-  \n
-  \n#### alias ####
-  \nalias ls='ls -FvG --color=auto'
-  \nalias ll='ls -lh --time-style=+\"%Y-%m-%d %H:%M\" --color=auto'
-  \nalias clr='clear'
-  \nalias grep='grep --color=auto'
-  \n\n
-  \n#### system params ####
-  \nGREP_COLOR='1;31'
-  \nGREP_OPTIONS='--color=always'
-  \nCLICOLOR=\"xterm-color\"
-  \nLSCOLORS=\"gxfxcxdxcxegedabagacad\"
-  \nHISTCONTROL=erasedups
-  \nPATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:~/.bin
-  \n\n
-  \nexport PS1 CLICOLOR LSCOLORS GREP_COLOR GREP_OPTIONS HISTCONTROL PATH
-  \nunset MAILCHECK"
+  setup_tag="# system_environment_setup"
+  has_been_set=$(grep "$setup_tag" $HOME/.bashrc)
 
-  echo -e ${bash_color}    >> ${HOME}/.bashrc
-  echo    ${ps1_conf}      >> ${HOME}/.bashrc
-  echo -e ${custom_bashrc} >> ${HOME}/.bashrc
+  if [[ -z "$has_been_set" ]]; then
+    bash_color="
+    \n\n
+    \n#### system_environment_setup ####
+    \n#### custom defined ####
+    \nfunction parse_git_branch {
+    \n  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+    \n}
+    \n
+    "
+    ps1_conf="PS1=\"[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;32m\]\h\[\e[0m\] \[\e[1;33m\]\W\[\e[0m\]]\[\e[1;31m\]\\\$(parse_git_branch)\\\\$ \[\e[0m\]\""
+    custom_bashrc="
+    \n
+    \n#### alias ####
+    \nalias ls='ls -FvG --color=auto'
+    \nalias ll='ls -lh --time-style=+\"%Y-%m-%d %H:%M\" --color=auto'
+    \nalias clr='clear'
+    \nalias grep='grep --color=auto'
+    \n\n
+    \n#### system params ####
+    \nGREP_COLOR='1;31'
+    \nGREP_OPTIONS='--color=always'
+    \nCLICOLOR=\"xterm-color\"
+    \nLSCOLORS=\"gxfxcxdxcxegedabagacad\"
+    \nHISTCONTROL=erasedups
+    \nPATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:~/.bin
+    \n\n
+    \nexport PS1 CLICOLOR LSCOLORS GREP_COLOR GREP_OPTIONS HISTCONTROL PATH
+    \nunset MAILCHECK"
+
+    echo -e ${bash_color}    >> ${HOME}/.bashrc
+    echo    ${ps1_conf}      >> ${HOME}/.bashrc
+    echo -e ${custom_bashrc} >> ${HOME}/.bashrc
+  fi
 
   ${IS_SUDO} locale-gen "zh_TW.UTF-8"
   ${IS_SUDO} dpkg-reconfigure locales
@@ -64,8 +70,8 @@ function vim_setup(){
   echo -e '\e[1;32mVIM setup\e[0m'
 
   mkdir ${PWD}/test_vim
-  tar zxvf ${PWD}/vim_fzf.tar.gz -C ${PWD}/test_vim
-  cp -rf ${PWD}/test_vim/root/.vim ${PWD}/test_vim/root/.vimrc ${HOME}/
+  tar zxvf ${PWD}/package.tar.gz -C ${PWD}/test_vim
+  cp -rf ${PWD}/test_vim/.vim ${PWD}/test_vim/.vimrc ${HOME}/
   rm -rf ${PWD}/test_vim
 }
 
