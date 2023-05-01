@@ -61,7 +61,7 @@ function append_custom_bashrc(){
 function install_nodejs(){
   echo -e '\e[1;32mInstall nodejs\e[0m'
 
-  curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | ${IS_SUDO} bash -
+  curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash -
   source ${HOME}/.bashrc
   nvm install v18
 }
@@ -105,6 +105,10 @@ function check_sudo(){
   fi
 }
 
+function install_rust(){
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+}
+
 
 
 
@@ -119,6 +123,7 @@ while [[ true ]]; do
   echo "# (n) Install nodejs v18    #"
   echo "# (g) Git environment setup #"
   echo "# (v) Vim environment setup #"
+  echo "# (r) Install rust          #"
   echo "# (q) Quit                  #"
   echo "#############################"
 
@@ -152,5 +157,9 @@ while [[ true ]]; do
 
   if [[ ${option} =~ ^[a|A|v|V]$ ]]; then
     vim_setup
+  fi
+
+  if [[ ${option} =~ ^[a|A|r|R]$ ]]; then
+    install_rust
   fi
 done
