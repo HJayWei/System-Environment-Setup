@@ -45,3 +45,11 @@
 |[     | []  |
 |{     | {}  |
 |\<C-s\> | save|
+
+
+|visual mode | description|
+|:-----------|:-----------|
+|\<S-h\>     | Move currently selected block left |
+|\<S-j\>     | Move currently selected block down |
+|\<S-k\>     | Move currently selected block up   |
+|\<S-l\>     | Move currently selected block right|
