@@ -33,7 +33,7 @@ function append_custom_bashrc(){
     custom_bashrc="
     \n
     \n#### alias ####
-    \nalias ls='ls -FvG --color=auto'
+    \nalias ls='ls -Fv --color=auto'
     \nalias ll='ls -lh --time-style=+\"%Y-%m-%d %H:%M\" --color=auto'
     \nalias clr='clear'
     \nalias grep='grep --color=auto'
